@@ -1,0 +1,74 @@
+COMMAND SAMPLES
+
+az keyvault secret set --vault-name gmg-kv --name "client1-user1-sftp-config" --value '{
+  "host": "192.168.31.218",
+  "username": "sftpuser1",
+  "password": "sftpass1",
+  "port": "22",
+  "remote_path": "/sftp_upload"
+}'
+
+az keyvault secret set --vault-name gmg-kv --name "clientx-userx-sftp-config" --value '{
+  "host": "192.168.31.24",
+  "username": "sftpuserx",
+  "password": "sftpassx",
+  "port": "22",
+  "remote_path": "/sftp_upload"
+}'
+
+az keyvault secret set --vault-name gmg-kv --name "client1-user2-sftp-config" --value '{
+  "host": "192.168.31.218",
+  "username": "sftpuser2",
+  "password": "sftpass2",
+  "port": "22",
+  "remote_path": "/sftp_upload"
+}'
+
+
+az keyvault secret show --name client1-user1-sftp-config --vault-name gmg-kv
+
+az keyvault secret show --name client2-userx-sftp-config --vault-name gmg-kv
+
+az keyvault secret show --name client1-user2-sftp-config --vault-name gmg-kv
+
+az keyvault secret show --name clienty-usery-sftp-config --vault-name gmg-kv
+
+
+az keyvault set-policy --name gmg-kv --object-id 8d671cbd-59bb-4ed1-a40b-8c80e3ba7247 --secret-permissions get list
+
+az vm show --name auto-vm --resource-group GMG_RG --query identity.principalId -o tsv
+
+az keyvault secret list --vault-name gmg-kv --query "[].name" -o tsv
+
+
+
+for secret in $(az keyvault secret list --vault-name gmg-kv --query "[].name" -o tsv); do
+  value=$(az keyvault secret show --vault-name gmg-kv --name "$secret" --query value -o tsv)
+  echo "🔑 $secret = $value"
+done
+
+
++++++++++++ SAMI ++++++++++++++++++++++++++++
+
+auto-vm | Identity | System Assigned -> ON
+
+Note: Object (principal) ID
+
+az keyvault set-policy --name gmg-kv --object-id 8d671cbd-59bb-4ed1-a40b-8c80e3ba7247 --secret-permissions get list
+
+Inside VM
+
+az login --identity --allow-no-subscriptions
+
+az keyvault secret show --vault-name gmg-kv --name client1-user2-sftp-config --query value -o tsv
+ 
+=============== UAMI =======================
+
+az identity create --name gmg-uami --resource-group GMG_RG --location eastus
+
+
+az vm identity assign --identities gmg-uami --name auto-vm --resource-group GMG_RG
+
+az vm show --name auto-vm --resource-group GMG_RG --query identity.userAssignedIdentities
+
+az keyvault set-policy --name gmg-kv --object-id <UAMI_PRINCIPAL_ID> --secret-permissions get list
