@@ -1,0 +1,4 @@
+client_id,profile,hostname,port,username,password
+clienta,usera,sftp.clienta.com,22,userA,p@55w0rd
+clientb,userb,sftp.clientb.com,2222,userB,securepass!
+
